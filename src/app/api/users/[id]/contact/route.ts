@@ -3,11 +3,12 @@ import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
 
 // 获取联系方式（需满足：已登录 && 对方正在寻找队友）
-export async function GET(_req: Request, { params }: { params: { id: string } }) {
+export async function GET(_req: Request, context: { params: Promise<{ id: string }> }) {
   const session = await getSession();
   if (!session) return NextResponse.json({ message: "未登录" }, { status: 401 });
 
-  const user = await prisma.user.findUnique({ where: { id: params.id } });
+  const { id } = await context.params;
+  const user = await prisma.user.findUnique({ where: { id } });
   if (!user) return NextResponse.json({ message: "未找到用户" }, { status: 404 });
 
   if (!user.lookingForTeammates) {

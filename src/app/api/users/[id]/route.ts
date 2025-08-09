@@ -2,8 +2,9 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 // 获取用户公开信息（不含联系方式）
-export async function GET(_req: Request, { params }: { params: { id: string } }) {
-  const user = await prisma.user.findUnique({ where: { id: params.id } });
+export async function GET(_req: Request, context: { params: Promise<{ id: string }> }) {
+  const { id } = await context.params;
+  const user = await prisma.user.findUnique({ where: { id } });
   if (!user) return NextResponse.json({ message: "未找到用户" }, { status: 404 });
 
   return NextResponse.json({

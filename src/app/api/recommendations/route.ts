@@ -18,8 +18,8 @@ export async function GET(req: Request) {
     ...(q
       ? {
           OR: [
-            { displayName: { contains: q, mode: "insensitive" } },
-            { bio: { contains: q, mode: "insensitive" } },
+            { displayName: { contains: q } },
+            { bio: { contains: q } },
           ],
         }
       : {}),

@@ -37,18 +37,28 @@ export default function HomePage() {
   async function fetchList(reset = false) {
     if (loading) return;
     setLoading(true);
-    const url = new URL("/api/recommendations", window.location.origin);
-    if (q) url.searchParams.set("q", q);
-    url.searchParams.set("limit", "20");
-    if (!reset && cursor) url.searchParams.set("cursor", cursor);
-    const res = await fetch(url.toString());
-    const data = await res.json();
-    const next = (data.nextCursor as string | null) || null;
-    const list = (data.items as Card[]) || [];
-    setItems((prev) => (reset ? list : [...prev, ...list]));
-    setCursor(next);
-    setHasMore(Boolean(next));
-    setLoading(false);
+    try {
+      const url = new URL("/api/recommendations", window.location.origin);
+      if (q) url.searchParams.set("q", q);
+      url.searchParams.set("limit", "20");
+      if (!reset && cursor) url.searchParams.set("cursor", cursor);
+      const res = await fetch(url.toString());
+      const text = await res.text();
+      if (!res.ok) {
+        console.error("API 错误:", res.status, res.statusText, text);
+        return;
+      }
+      const data = text ? JSON.parse(text) : {};
+      const next = (data.nextCursor as string | null) || null;
+      const list = (data.items as Card[]) || [];
+      setItems((prev) => (reset ? list : [...prev, ...list]));
+      setCursor(next);
+      setHasMore(Boolean(next));
+    } catch (error) {
+      console.error("数据加载错误:", error);
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => {
