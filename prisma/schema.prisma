@@ -1,0 +1,39 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum ContactType {
+  WECHAT
+  PHONE
+  QR
+}
+
+model User {
+  id                 String       @id @default(cuid())
+  username           String       @unique
+  email              String       @unique
+  passwordHash       String
+  displayName        String
+  bio                String       @default("")
+  avatarUrl          String?
+  skills             Json         // 存储字符串数组，例如技能标签
+  contactType        ContactType?
+  contactValue       String?      // 微信号或手机号
+  contactQr          String?      // 二维码图片（Base64 Data URL）
+  lookingForTeammates Boolean     @default(true)
+  needsOnboarding    Boolean      @default(true)
+  socialLinks        Json?
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+
+  @@index([lookingForTeammates])
+  @@index([updatedAt])
+}
